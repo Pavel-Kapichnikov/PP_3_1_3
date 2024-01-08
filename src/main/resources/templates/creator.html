@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>User creator</title>
+    <style>
+        .error-txt {
+            color: red;
+        }
+    </style>
 </head>
 <body>
     Your can create new user now!
@@ -10,22 +15,27 @@
 <form th:method="POST" th:action="@{/create}" th:object="${user}">
     <label for="name">Enter name: </label>
     <input type="text" th:field="*{name}" id="name" required/>
+    <span class="error-txt" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name Error</span>
     <br>
     <br>
     <label for="lastName">Enter last name: </label>
     <input type="text" th:field="*{lastName}" id="lastName" required/>
+    <span class="error-txt" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}">Name Error</span>
     <br>
     <br>
     <label for="age">Enter age: </label>
     <input type="text" th:field="*{age}" id="age" required/>
+    <span class="error-txt" th:if="${#fields.hasErrors('age')}" th:errors="*{age}">Name Error</span>
     <br>
     <br>
     <label for="username">Enter username: </label>
     <input type="text" th:field="*{username}" id="username" required/>
+    <span class="error-txt" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">Name Error</span>
     <br>
     <br>
     <label for="password">Enter password: </label>
     <input type="text" th:field="*{password}" id="password" required/>
+    <span class="error-txt" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Name Error</span>
     <br>
     <br>
     <label for="role1">Set user role</label>

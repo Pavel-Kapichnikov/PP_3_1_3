@@ -3,6 +3,7 @@ package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,11 +12,11 @@ import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
-import java.util.HashSet;
-import java.util.Set;
+import javax.validation.Valid;
 
 @Controller
 public class UserController {
+    private static final String REDIRECT_ADMIN = "redirect:/admin";
     private final UserService userService;
 
     public UserController( UserService userService) {
@@ -41,19 +42,22 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public String create(@ModelAttribute("user") User user,
+    public String create(@ModelAttribute("user") @Valid User user,
+                         BindingResult bindingResult,
                          @RequestParam(name = "ROLE_USER", defaultValue = "false") boolean userRole,
                          @RequestParam(name = "ROLE_ADMIN", defaultValue = "false") boolean adminRole) {
-        Set<Role> tempRoles = new HashSet<>();
+        if (bindingResult.hasErrors()) {
+            return "creator";
+        }
+
         if (userRole) {
-            tempRoles.add(new Role("ROLE_USER"));
+            user.addRole(userService.getRoleByName("ROLE_USER"));
         }
         if (adminRole) {
-            tempRoles.add(new Role("ROLE_ADMIN"));
+            user.addRole(userService.getRoleByName("ROLE_ADMIN"));
         }
-        user.setRoles(tempRoles);
         userService.createUser(user);
-        return "redirect:/admin";
+        return REDIRECT_ADMIN;
     }
 
     @GetMapping("/edit")
@@ -71,25 +75,28 @@ public class UserController {
     }
 
     @PostMapping("/edit")
-    public String edit(@ModelAttribute("user") User user,
+    public String edit(@ModelAttribute("user") @Valid User user,
+                       BindingResult bindingResult,
                        @RequestParam(value = "id") long id,
                        @RequestParam(name = "ROLE_USER", defaultValue = "false") boolean userRole,
                        @RequestParam(name = "ROLE_ADMIN", defaultValue = "false") boolean adminRole) {
-        Set<Role> tempRoles = new HashSet<>();
+        if (bindingResult.hasErrors()) {
+            return "editor";
+        }
+
         if (userRole) {
-            tempRoles.add(new Role("ROLE_USER"));
+            user.addRole(userService.getRoleByName("ROLE_USER"));
         }
         if (adminRole) {
-            tempRoles.add(new Role("ROLE_ADMIN"));
+            user.addRole(userService.getRoleByName("ROLE_ADMIN"));
         }
-        user.setRoles(tempRoles);
         userService.editUser(id, user);
-        return "redirect:/admin";
+        return REDIRECT_ADMIN;
     }
 
     @GetMapping("/delete")
     public String deleteUser(@RequestParam(value = "id") long id) {
         userService.deleteUser(id);
-        return "redirect:/admin";
+        return REDIRECT_ADMIN;
     }
 }

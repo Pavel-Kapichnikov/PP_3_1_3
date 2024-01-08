@@ -5,7 +5,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -15,22 +17,33 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Size(min = 2, max = 30, message = " Name should be between 2 and 30 characters")
+    @NotBlank(message = " Name should not be empty")
     private String name;
+    @Size(min = 2, max = 30, message = " Last Name should be between 2 and 30 characters")
+    @NotBlank(message = " Last Name should not be empty")
     private String lastName;
+    @NotNull(message = " Age should not be null")
+    @Min(value = 0, message = " Age should be greater then 0")
     private Integer age;
+    @Column(unique = true)
+    @Pattern(regexp = "[a-zA-Z0-9]+", message = " Username should be consist of Latin letters and numbers")
     private String username;
+    @Size(min = 1, max = 60, message = " Password should be between 1 and 60 characters")
+    @NotBlank(message = " Name should not be empty")
     private String password;
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Set<Role> roles;
+    @ManyToMany
+    private Set<Role> roles = new HashSet<>();
 
     public User() {
     }
 
-    public User(long id, String name, String lastName, Integer age) {
-        this.id = id;
+    public User(String name, String lastName, Integer age, String username, String password) {
         this.name = name;
         this.lastName = lastName;
         this.age = age;
+        this.username = username;
+        this.password = password;
     }
 
     public long getId() {
@@ -90,6 +103,8 @@ public class User implements UserDetails {
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
+
+    public void addRole(Role role) {this.roles.add(role);}
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
